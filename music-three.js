@@ -4,11 +4,12 @@ var ctx = new AudioContext();
 var audio = document.getElementById('myAudio');
 var audioSrc = ctx.createMediaElementSource(audio);
 var analyser = ctx.createAnalyser();
+analyser.fftSize = 4096;
 
 audioSrc.connect(analyser);
 audioSrc.connect(ctx.destination);
 // frequencyBinCount tells you how many values you'll receive from the analyser
-var frequencyData = new Uint8Array(analyser.frequencyBinCount / 10);
+var frequencyData = new Uint8Array(analyser.frequencyBinCount);
 
 var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
 
@@ -80,8 +81,7 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
     document.addEventListener( 'mousemove', onDocumentMouseMove, false );
     document.addEventListener( 'touchstart', onDocumentTouchStart, false );
     document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-
-    //
+    document.addEventListener( 'mousewheel', onScroll, false );
 
     window.addEventListener( 'resize', onWindowResize, false );
 
@@ -134,6 +134,12 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
 
   }
 
+  function onScroll ( event ) {
+    event.preventDefault();
+    var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+    camera.position.z += delta * 100;
+  }
+
   //
 
   function animate() {
@@ -148,11 +154,15 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
     speed = frequencyData[25]/100,
     centerY = 0,
     waveHeight = 60;
-  function render() {
-    angle+=speed;
-    camera.position.x = centerY + (Math.sin(angle) * waveHeight);
 
-    camera.position.y = centerY + (Math.sin(angle) * waveHeight);
+  function render() {
+    angle += speed;
+    var xOffset = mouseX - windowHalfX; 
+    var yOffset = mouseY - windowHalfY;
+    camera.position.x += ( xOffset - camera.position.x ) * .05;
+    camera.position.y += ( - yOffset - camera.position.y ) * .05;
+    camera.position.x += mouseX;
+    camera.position.y += mouseY;
     camera.lookAt( scene.position );
 
     var i = 0;
@@ -176,6 +186,5 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
     count += 0.1;
     analyser.getByteFrequencyData(frequencyData);
     // render frame based on values in frequencyData
-    console.log(frequencyData.length);
   }
 });
