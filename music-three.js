@@ -1,3 +1,5 @@
+document.body.style.cursor = 'none';
+
 var MusicAnalyzer = function(audioId, yOffset) {
   var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
 
@@ -61,8 +63,9 @@ var MusicAnalyzer = function(audioId, yOffset) {
 
         // docs for changing colors here: https://threejs.org/docs/api/math/Color.html
         var color = new THREE.Color();
-        color.setHSL((frequencyData[i]*360/255), 0.5, 0.5);
-
+        // var newColor = ((savedColor + frequencyData[i]*360/255) / 2);
+        color.setHSL(155, 0.5, (frequencyData[i]/255) + 0.5);
+        // savedColor = newColor;
         particle.material.color = color;
 
       }
@@ -84,7 +87,7 @@ var MusicAnalyzer = function(audioId, yOffset) {
 };
 
 var aveMaria = MusicAnalyzer('aveMaria');
-var bachCello = MusicAnalyzer('bachCello', 500);
+var bachCello = MusicAnalyzer('bachCello', 1000);
 
 $(function(){
 
