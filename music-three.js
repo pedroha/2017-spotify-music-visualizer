@@ -2,19 +2,37 @@ document.body.style.cursor = 'none';
 
 var MusicAnalyzer = function(audioId, yOffset) {
   var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
-
-  yOffset = yOffset || 0;
-
+  var audioSrc, audio;
   var ctx = new AudioContext();
-  var audio = document.getElementById(audioId);
-  var audioSrc = ctx.createMediaElementSource(audio);
+
   var analyser = ctx.createAnalyser();
-  analyser.fftSize = 4096;
+  analyser.fftSize = 2048;
+  yOffset = yOffset || 0;
+  
+  var useMic = function() {
+    navigator.mediaDevices.getUserMedia = (navigator.mediaDevices.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia ||
+    navigator.msGetUserMedia);
 
-  audioSrc.connect(analyser);
-  audioSrc.connect(ctx.destination);
+    if (navigator.mediaDevices.getUserMedia) navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        audioSrc = ctx.createMediaStreamSource(stream);
+        audioSrc.connect(analyser);
+      })
+  };
+
+  var useClip = function() {
+    audio = document.getElementById(audioId);
+    audioSrc = ctx.createMediaElementSource(audio);
+    audioSrc.connect(analyser);
+    audioSrc.connect(ctx.destination);
+  };
+
+  if (!audioId) useMic();
+  else useClip();
+
   // frequencyBinCount tells you how many values you'll receive from the analyser
-
   var frequencyData = new Uint8Array(analyser.frequencyBinCount);
 
   var particle, particles = new Array();
@@ -63,9 +81,7 @@ var MusicAnalyzer = function(audioId, yOffset) {
 
         // docs for changing colors here: https://threejs.org/docs/api/math/Color.html
         var color = new THREE.Color();
-        // var newColor = ((savedColor + frequencyData[i]*360/255) / 2);
-        color.setHSL(0.2, 0.9, (frequencyData[i]/512) + 0.5);
-        // savedColor = newColor;
+        color.setHSL(1, 0.9, (frequencyData[i]/512) + 0.5);
         particle.material.color = color;
 
       }
@@ -87,7 +103,8 @@ var MusicAnalyzer = function(audioId, yOffset) {
 };
 
 var aveMaria = MusicAnalyzer('aveMaria');
-var bachCello = MusicAnalyzer('bachCello', 1000);
+var bachCello = MusicAnalyzer('bachCello', 750);
+var voiceNoodle = MusicAnalyzer(null, 1500);
 
 $(function(){
 
@@ -130,6 +147,7 @@ $(function(){
 
     aveMaria.initParticles(scene, material);
     bachCello.initParticles(scene, material);
+    voiceNoodle.initParticles(scene, material);
 
     renderer = new THREE.CanvasRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -224,16 +242,18 @@ $(function(){
     var yOffset = mouseY - windowHalfY;
     camera.position.x += ( xOffset - camera.position.x ) * .05;
     camera.position.y += ( - yOffset - camera.position.y ) * .05;
-    camera.position.x += mouseX;
-    camera.position.y += mouseY;
+    camera.position.x += mouseX * 0.6;
+    camera.position.y += mouseY * 0.6;
     camera.lookAt( scene.position );
 
     aveMaria.updatePosition();
     bachCello.updatePosition();
+    voiceNoodle.updatePosition();
 
     renderer.render( scene, camera );
 
     aveMaria.getData();
     bachCello.getData();
+    voiceNoodle.getData();
   }
 });
