@@ -43,7 +43,7 @@ var MusicAnalyzer = function(audioId, yOffset) {
         scene.add( particle );
       }
 
-    }    
+    }
   }
 
   var updatePosition = function() {
@@ -58,6 +58,12 @@ var MusicAnalyzer = function(audioId, yOffset) {
           ( Math.sin( ( iy + count ) * 0.5 ) * 50 );
         particle.scale.x = particle.scale.y = ( Math.sin( ( ix + count ) * 0.3 ) + 1 ) * 4 +
           ( Math.sin( ( iy + count ) * 0.5 ) + 1 ) * 4;
+
+        // docs for changing colors here: https://threejs.org/docs/api/math/Color.html
+        var color = new THREE.Color();
+        color.setHSL((frequencyData[i]*360/255), 0.5, 0.5);
+
+        particle.material.color = color;
 
       }
 
@@ -94,7 +100,7 @@ $(function(){
   animate();
   aveMaria.play();
   bachCello.play();
-  
+
   function init() {
 
     container = document.createElement( 'div' );
@@ -211,7 +217,7 @@ $(function(){
 
   function render() {
     angle += speed;
-    var xOffset = mouseX - windowHalfX; 
+    var xOffset = mouseX - windowHalfX;
     var yOffset = mouseY - windowHalfY;
     camera.position.x += ( xOffset - camera.position.x ) * .05;
     camera.position.y += ( - yOffset - camera.position.y ) * .05;
