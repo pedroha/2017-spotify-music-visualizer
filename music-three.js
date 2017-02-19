@@ -64,7 +64,7 @@ var MusicAnalyzer = function(audioId, yOffset) {
         // docs for changing colors here: https://threejs.org/docs/api/math/Color.html
         var color = new THREE.Color();
         // var newColor = ((savedColor + frequencyData[i]*360/255) / 2);
-        color.setHSL(155, 0.5, (frequencyData[i]/255) + 0.5);
+        color.setHSL(0.2, 0.9, (frequencyData[i]/512) + 0.5);
         // savedColor = newColor;
         particle.material.color = color;
 
