@@ -1,22 +1,89 @@
+var MusicAnalyzer = function(audioId, yOffset) {
+  var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
+
+  yOffset = yOffset || 0;
+
+  var ctx = new AudioContext();
+  var audio = document.getElementById(audioId);
+  var audioSrc = ctx.createMediaElementSource(audio);
+  var analyser = ctx.createAnalyser();
+  analyser.fftSize = 4096;
+
+  audioSrc.connect(analyser);
+  audioSrc.connect(ctx.destination);
+  // frequencyBinCount tells you how many values you'll receive from the analyser
+
+  var frequencyData = new Uint8Array(analyser.frequencyBinCount);
+
+  var particle, particles = new Array();
+
+  var count = 0;
+
+  var play = function() {
+    audio.play();
+  };
+
+  var getData = function() {
+    analyser.getByteFrequencyData(frequencyData);
+    // render frame based on values in frequencyData
+
+    count += 0.1;
+  };
+
+  var initParticles = function(scene, material) {
+    var i = 0;
+
+    for ( var ix = 0; ix < AMOUNTX; ix ++ ) {
+
+      for ( var iy = 0; iy < AMOUNTY; iy ++ ) {
+
+        particle = particles[ i ++ ] = new THREE.Sprite( material );
+        particle.position.x = ix * SEPARATION - ( ( AMOUNTX * SEPARATION ) / 2 );
+        particle.position.z = iy * SEPARATION - ( ( AMOUNTY * SEPARATION ) / 2 );
+        scene.add( particle );
+      }
+
+    }    
+  }
+
+  var updatePosition = function() {
+    var i = 0;
+
+    for ( var ix = 0; ix < frequencyData[i]; ix ++ ) {
+
+      for ( var iy = 0; iy < frequencyData[i]; iy ++ ) {
+
+        particle = particles[ i++ ];
+        particle.position.y = yOffset + ( Math.sin( ( ix + count ) * 0.3 ) * 50 ) +
+          ( Math.sin( ( iy + count ) * 0.5 ) * 50 );
+        particle.scale.x = particle.scale.y = ( Math.sin( ( ix + count ) * 0.3 ) + 1 ) * 4 +
+          ( Math.sin( ( iy + count ) * 0.5 ) + 1 ) * 4;
+
+      }
+
+    }
+  }
+
+  var getFrequencyData = function() {
+    return frequencyData;
+  }
+
+  return {
+    play: play,
+    getData: getData,
+    initParticles: initParticles,
+    updatePosition: updatePosition,
+    getFrequencyData: getFrequencyData
+  }
+};
+
+var aveMaria = MusicAnalyzer('aveMaria');
+var bachCello = MusicAnalyzer('bachCello', 500);
 
 $(function(){
-var ctx = new AudioContext();
-var audio = document.getElementById('myAudio');
-var audioSrc = ctx.createMediaElementSource(audio);
-var analyser = ctx.createAnalyser();
-analyser.fftSize = 4096;
-
-audioSrc.connect(analyser);
-audioSrc.connect(ctx.destination);
-// frequencyBinCount tells you how many values you'll receive from the analyser
-var frequencyData = new Uint8Array(analyser.frequencyBinCount);
-
-var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
 
   var container, stats;
   var camera, scene, renderer;
-
-  var particles, particle, count = 0;
 
   var mouseX = 0, mouseY = 0;
 
@@ -25,7 +92,8 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
 
   init();
   animate();
-  audio.play();
+  aveMaria.play();
+  bachCello.play();
   
   function init() {
 
@@ -36,8 +104,6 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
     camera.position.z = 1000;
 
     scene = new THREE.Scene();
-
-    particles = new Array();
 
     var PI2 = Math.PI * 2;
     var material = new THREE.SpriteCanvasMaterial( {
@@ -53,20 +119,8 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
 
     } );
 
-    var i = 0;
-
-    for ( var ix = 0; ix < AMOUNTX; ix ++ ) {
-
-      for ( var iy = 0; iy < AMOUNTY; iy ++ ) {
-
-        particle = particles[ i ++ ] = new THREE.Sprite( material );
-        particle.position.x = ix * SEPARATION - ( ( AMOUNTX * SEPARATION ) / 2 );
-        particle.position.z = iy * SEPARATION - ( ( AMOUNTY * SEPARATION ) / 2 );
-        scene.add( particle );
-
-      }
-
-    }
+    aveMaria.initParticles(scene, material);
+    bachCello.initParticles(scene, material);
 
     renderer = new THREE.CanvasRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -151,7 +205,7 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
 
   }
   var angle = 0,
-    speed = frequencyData[25]/100,
+    speed = aveMaria.getFrequencyData()[25]/100,
     centerY = 0,
     waveHeight = 60;
 
@@ -165,26 +219,12 @@ var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
     camera.position.y += mouseY;
     camera.lookAt( scene.position );
 
-    var i = 0;
-
-    for ( var ix = 0; ix < frequencyData[i]; ix ++ ) {
-
-      for ( var iy = 0; iy < frequencyData[i]; iy ++ ) {
-
-        particle = particles[ i++ ];
-        particle.position.y = ( Math.sin( ( ix + count ) * 0.3 ) * 50 ) +
-          ( Math.sin( ( iy + count ) * 0.5 ) * 50 );
-        particle.scale.x = particle.scale.y = ( Math.sin( ( ix + count ) * 0.3 ) + 1 ) * 4 +
-          ( Math.sin( ( iy + count ) * 0.5 ) + 1 ) * 4;
-
-      }
-
-    }
+    aveMaria.updatePosition();
+    bachCello.updatePosition();
 
     renderer.render( scene, camera );
 
-    count += 0.1;
-    analyser.getByteFrequencyData(frequencyData);
-    // render frame based on values in frequencyData
+    aveMaria.getData();
+    bachCello.getData();
   }
 });
