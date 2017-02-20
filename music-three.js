@@ -74,18 +74,28 @@ var MusicAnalyzer = function(audioId, yOffset) {
       for ( var iy = 0; iy < frequencyData[i]; iy ++ ) {
 
         particle = particles[ i++ ];
-        particle.position.y = yOffset + ( Math.sin( ( ix + count ) * 0.3 ) * 50 ) +
-          ( Math.sin( ( iy + count ) * 0.5 ) * 50 );
-        particle.scale.x = particle.scale.y = ( Math.sin( ( ix + count ) * 0.3 ) + 1 ) * 4 +
+
+        particle.position.y =
+          ( Math.sin( ( ix + count ) * 0.3 ) * 100 ) +
+          ( Math.sin( ( iy + count ) * 0.5 ) * 100 );
+        
+        particle.scale.x = particle.scale.y = 
+          ( Math.sin( ( ix + count ) * 0.3 ) + 1 ) * 4 +
           ( Math.sin( ( iy + count ) * 0.5 ) + 1 ) * 4;
 
         // docs for changing colors here: https://threejs.org/docs/api/math/Color.html
         var color = new THREE.Color();
-        color.setHSL(1, 0.9, (frequencyData[i]/512) + 0.5);
+        //color.setHSL((frequencyData[i]/255), 0.9, 0.6); // (frequencyData[i]/255) + 0.5);
+
+        var fraction = particle.position.y / 50;
+        //color.setRGB(1, 0.8, 0.5);
+
+        color.setHSL( fraction, .64, .59 );
         particle.material.color = color;
 
+        // console.log(fraction);
+        particle.position.y += yOffset;
       }
-
     }
   }
 
@@ -132,22 +142,40 @@ $(function(){
     scene = new THREE.Scene();
 
     var PI2 = Math.PI * 2;
-    var material = new THREE.SpriteCanvasMaterial( {
 
+    var material1 = new THREE.SpriteCanvasMaterial( {
       color: 0xffffff,
       program: function ( context ) {
 
         context.beginPath();
         context.arc( 0, 0, 0.5, 0, PI2, true );
         context.fill();
-
       }
+    });
 
-    } );
+    var material2 = new THREE.SpriteCanvasMaterial( {
+      color: 0xffffff,
+      program: function ( context ) {
 
-    aveMaria.initParticles(scene, material);
-    bachCello.initParticles(scene, material);
-    voiceNoodle.initParticles(scene, material);
+        context.beginPath();
+        context.arc( 0, 0, 0.5, 0, PI2, true );
+        context.fill();
+      }
+    });
+
+    var material3 = new THREE.SpriteCanvasMaterial( {
+      color: 0xffffff,
+      program: function ( context ) {
+
+        context.beginPath();
+        context.arc( 0, 0, 0.5, 0, PI2, true );
+        context.fill();
+      }
+    });
+
+    aveMaria.initParticles(scene, material1);
+    bachCello.initParticles(scene, material2);
+    voiceNoodle.initParticles(scene, material3);
 
     renderer = new THREE.CanvasRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
