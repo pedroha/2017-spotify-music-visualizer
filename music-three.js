@@ -1,4 +1,4 @@
-document.body.style.cursor = 'none';
+// document.body.style.cursor = 'none';
 
 var MusicAnalyzer = function(audioId, yOffset) {
   var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
@@ -77,6 +77,7 @@ var MusicAnalyzer = function(audioId, yOffset) {
 
   var updatePosition = function() {
     var i = 0;
+    var fraction;
 
     for ( var ix = 0; ix < frequencyData[i]; ix ++ ) {
 
@@ -92,13 +93,15 @@ var MusicAnalyzer = function(audioId, yOffset) {
           ( Math.sin( ( ix + count ) * 0.3 ) + 1 ) * 4 +
           ( Math.sin( ( iy + count ) * 0.5 ) + 1 ) * 4;
 
+        var useHueLines = false;
+        if (useHueLines) {
+          fraction = i / 255; // use continuous hue lines
+        }
+        else {
+          fraction = frequencyData[i] / 255; // use altitude for determining color
+        }
+
         // docs for changing colors here: https://threejs.org/docs/api/math/Color.html
-        var color = new THREE.Color();
-        //color.setHSL((frequencyData[i]/255), 0.9, 0.6); // (frequencyData[i]/255) + 0.5);
-
-        var idx = Math.floor(255 * Math.max(1, particle.position.y / 75));
-
-        var fraction = i / 255;
         var color = new THREE.Color();
         color.setHSL( fraction, .64, .59 );
 
