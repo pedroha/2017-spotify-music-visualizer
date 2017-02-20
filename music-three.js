@@ -50,19 +50,28 @@ var MusicAnalyzer = function(audioId, yOffset) {
     count += 0.1;
   };
 
-  var initParticles = function(scene, material) {
+  var initParticles = function(scene) {
+    var PI2 = Math.PI * 2;
     var i = 0;
+
+    var program = function ( context ) {
+      context.beginPath();
+      context.arc( 0, 0, 0.5, 0, PI2, true );
+      context.fill();
+    };
 
     for ( var ix = 0; ix < AMOUNTX; ix ++ ) {
 
       for ( var iy = 0; iy < AMOUNTY; iy ++ ) {
-
-        particle = particles[ i ++ ] = new THREE.Sprite( material );
+        var material = new THREE.SpriteCanvasMaterial({
+          color: 0xffffff,
+          program: program
+        });
+        particle = particles[ i++ ] = new THREE.Sprite( material );
         particle.position.x = ix * SEPARATION - ( ( AMOUNTX * SEPARATION ) / 2 );
         particle.position.z = iy * SEPARATION - ( ( AMOUNTY * SEPARATION ) / 2 );
         scene.add( particle );
       }
-
     }
   }
 
@@ -76,8 +85,8 @@ var MusicAnalyzer = function(audioId, yOffset) {
         particle = particles[ i++ ];
 
         particle.position.y =
-          ( Math.sin( ( ix + count ) * 0.3 ) * 100 ) +
-          ( Math.sin( ( iy + count ) * 0.5 ) * 100 );
+          ( Math.sin( ( ix + count ) * 0.3 ) * 75 ) +
+          ( Math.sin( ( iy + count ) * 0.5 ) * 75 );
         
         particle.scale.x = particle.scale.y = 
           ( Math.sin( ( ix + count ) * 0.3 ) + 1 ) * 4 +
@@ -87,13 +96,14 @@ var MusicAnalyzer = function(audioId, yOffset) {
         var color = new THREE.Color();
         //color.setHSL((frequencyData[i]/255), 0.9, 0.6); // (frequencyData[i]/255) + 0.5);
 
-        var fraction = particle.position.y / 50;
-        //color.setRGB(1, 0.8, 0.5);
+        var idx = Math.floor(255 * Math.max(1, particle.position.y / 75));
 
+        var fraction = i / 255;
+        var color = new THREE.Color();
         color.setHSL( fraction, .64, .59 );
+
         particle.material.color = color;
 
-        // console.log(fraction);
         particle.position.y += yOffset;
       }
     }
@@ -131,6 +141,7 @@ $(function(){
   aveMaria.play();
   bachCello.play();
 
+
   function init() {
 
     container = document.createElement( 'div' );
@@ -141,41 +152,9 @@ $(function(){
 
     scene = new THREE.Scene();
 
-    var PI2 = Math.PI * 2;
-
-    var material1 = new THREE.SpriteCanvasMaterial( {
-      color: 0xffffff,
-      program: function ( context ) {
-
-        context.beginPath();
-        context.arc( 0, 0, 0.5, 0, PI2, true );
-        context.fill();
-      }
-    });
-
-    var material2 = new THREE.SpriteCanvasMaterial( {
-      color: 0xffffff,
-      program: function ( context ) {
-
-        context.beginPath();
-        context.arc( 0, 0, 0.5, 0, PI2, true );
-        context.fill();
-      }
-    });
-
-    var material3 = new THREE.SpriteCanvasMaterial( {
-      color: 0xffffff,
-      program: function ( context ) {
-
-        context.beginPath();
-        context.arc( 0, 0, 0.5, 0, PI2, true );
-        context.fill();
-      }
-    });
-
-    aveMaria.initParticles(scene, material1);
-    bachCello.initParticles(scene, material2);
-    voiceNoodle.initParticles(scene, material3);
+    aveMaria.initParticles(scene);
+    bachCello.initParticles(scene);
+    voiceNoodle.initParticles(scene);
 
     renderer = new THREE.CanvasRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
