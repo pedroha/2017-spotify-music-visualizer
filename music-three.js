@@ -128,7 +128,7 @@ var MusicVisualyzer = function(audioId, yOffset) {
 
 var aveMaria = MusicVisualyzer('aveMaria');
 var bachCello = MusicVisualyzer('bachCello', 750);
-var voiceNoodle = MusicVisualyzer(null, 1500);
+// var voiceNoodle = MusicVisualyzer(null, 1500);
 
 $(function(){
 
@@ -158,7 +158,9 @@ $(function(){
 
     aveMaria.initParticles(scene);
     bachCello.initParticles(scene);
-    voiceNoodle.initParticles(scene);
+    if (voiceNoodle) {
+      voiceNoodle.initParticles(scene);
+    }
 
     renderer = new THREE.CanvasRenderer();
     renderer.setPixelRatio( window.devicePixelRatio );
@@ -259,12 +261,16 @@ $(function(){
 
     aveMaria.updatePosition();
     bachCello.updatePosition();
-    voiceNoodle.updatePosition();
+    if (voiceNoodle) {
+      voiceNoodle.updatePosition();
+    }
 
     renderer.render( scene, camera );
 
     aveMaria.getData();
     bachCello.getData();
-    voiceNoodle.getData();
+    if (voiceNoodle) {
+      voiceNoodle.getData();
+    }
   }
 });
