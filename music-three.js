@@ -128,6 +128,7 @@ var MusicVisualyzer = function(audioId, yOffset) {
 
 var aveMaria = MusicVisualyzer('aveMaria');
 var bachCello = MusicVisualyzer('bachCello', 750);
+var voiceNoodle;
 // var voiceNoodle = MusicVisualyzer(null, 1500);
 
 $(function(){
