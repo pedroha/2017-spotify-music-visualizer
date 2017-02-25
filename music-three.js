@@ -1,6 +1,6 @@
 // document.body.style.cursor = 'none';
 
-var MusicAnalyzer = function(audioId, yOffset) {
+var MusicVisualyzer = function(audioId, yOffset) {
   var SEPARATION = 100, AMOUNTX = 32, AMOUNTY = 32;
   var audioSrc, audio;
   var ctx = new AudioContext();
@@ -15,7 +15,8 @@ var MusicAnalyzer = function(audioId, yOffset) {
     navigator.mozGetUserMedia ||
     navigator.msGetUserMedia);
 
-    if (navigator.mediaDevices.getUserMedia) navigator.mediaDevices.getUserMedia({ audio: true })
+    if (navigator.mediaDevices.getUserMedia)
+      navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
         audioSrc = ctx.createMediaStreamSource(stream);
         audioSrc.connect(analyser);
@@ -125,9 +126,9 @@ var MusicAnalyzer = function(audioId, yOffset) {
   }
 };
 
-var aveMaria = MusicAnalyzer('aveMaria');
-var bachCello = MusicAnalyzer('bachCello', 750);
-var voiceNoodle = MusicAnalyzer(null, 1500);
+var aveMaria = MusicVisualyzer('aveMaria');
+var bachCello = MusicVisualyzer('bachCello', 750);
+var voiceNoodle = MusicVisualyzer(null, 1500);
 
 $(function(){
 
